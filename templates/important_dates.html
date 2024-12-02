@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Important Dates</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #ffffff;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            background-color: #CDC1FF;
+            padding: 20px;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-250px);
+        }
+
+        .hamburger-icon {
+            font-size: 1.5rem;
+            color: #602e9e;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        .sidebar img {
+            width: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .sidebar .logo-caption {
+            text-align: center;
+            font-weight: bold;
+            color: #602e9e;
+            margin-bottom: 20px;
+        }
+
+        .sidebar button {
+            font-weight: bold;
+            font-size: 15px;
+            width: 100%;
+            background-color: transparent;
+            border: 2px solid #602e9e;
+            padding: 10px;
+            border-radius: 100px;
+            color: #602e9e;
+            text-align: left;
+            margin: 15px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .sidebar button i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .sidebar button:hover,
+        .sidebar button.active {
+            background-color: white;
+            border-color: #602e9e;
+            color: #602e9e;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: margin-left 0.3s ease;
+        }
+
+        .content.collapsed {
+            margin-left: 0;
+        }
+
+        .content h1 {
+            color: #4A4A4A;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: #602e9e;
+            text-align: center;
+        }
+
+        #calendar {
+            max-width: 800px;
+            width: 100%;
+            background-color: #E5D9F2;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            color: #602e9e; 
+        }
+
+        .fc .fc-daygrid-event {
+            background-color: #602e9e; /* Event background color */
+            color: #ffffff; /* Event text color */
+            border: none; /* Remove border for cleaner look */
+        }
+
+        .fc .fc-button {
+            background-color: #602e9e; /* Button color */
+            color: white;
+            border: none;
+        }
+
+        .fc .fc-button:hover {
+            background-color: #4e2381; /* Darker shade on hover */
+        }
+
+        .fc .fc-toolbar-title {
+            color: #602e9e; /* Title color */
+        }
+
+        .fc .fc-button-primary {
+            background-color: #602e9e; /* Primary button color */
+            border-color: #602e9e;
+        }
+
+        .fc .fc-button-primary:hover {
+            background-color: #4e2381; /* Darker shade on hover */
+            border-color: #4e2381;
+        }
+
+        .fc .fc-daygrid-day-number {
+            color: #602e9e; /* Day number color */
+        }
+
+        /* Profile button styling */
+        .profile-btn {
+            font-weight: bold;
+            font-size: 15px;
+            width: 100%;
+            background-color: transparent;
+            border: 2px solid #602e9e;
+            padding: 10px;
+            border-radius: 50px;
+            color: #602e9e;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            position: relative;
+        }
+
+        .profile-btn:hover {
+            background-color: white;
+            border-color: #602e9e;
+        }
+
+        /* Profile dropdown container */
+        .profile-section {
+            position: relative;
+        }
+
+        /* Dropdown content as a pop-up above the button */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #b19cd9;
+            padding: 10px 0;
+            border-radius: 12px;
+            bottom: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+            text-align: center;
+        }
+
+        .dropdown-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px;
+            border-style: solid;
+            border-color: #b19cd9 transparent transparent transparent;
+        }
+
+        .dropdown-content p {
+            color: white;
+            padding: 8px 15px;
+            margin: 0;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        .dropdown-content p:hover {
+            background-color: #8e8eff;
+            border-radius: 8px;
+        }
+
+        @media (max-width: 768px) {
+        .fc-toolbar.fc-header-toolbar {
+            flex-direction: column;
+        }
+
+        .fc-toolbar-title {
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .fc .fc-button-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        #calendar {
+            font-size: 0.9rem; /* Reduce font size for smaller screens */
+        }
+    }
+    </style>
+</head>
+<body>
+    <div class="hamburger-icon" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+ 
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <img src="{{ url_for('serve_image', filename='ccs_logo.png') }}" alt="Logo">
+        <div class="logo-caption">Dean's Office Assistant</div>
+        <button onclick="navigateTo(event, 'announcements')"><i class="fas fa-bullhorn"></i> ANNOUNCEMENT</button>
+        <button onclick="navigateTo(event, 'important_dates')" class="active"><i class="fas fa-calendar-alt"></i> IMPORTANT DATES</button>
+        <button onclick="navigateTo(event, 'request_page')"><i class="fas fa-file-alt"></i> REQUEST</button>
+        <button onclick="navigateTo(event, 'queue_number')"><i class="fas fa-print"></i> QUEUE NUMBER</button>
+        <button onclick="navigateTo(event, 'doa')"><i class="fas fa-robot"></i> DOA</button>
+        <button onclick="navigateTo(event, 'about')"><i class="fas fa-info-circle"></i> ABOUT</button>
+        
+        <!-- Profile Section -->
+        <button onclick="navigateTo(event, 'profile')" class="profile-btn">
+            <i class="fas fa-user"></i> PROFILE
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content" id="content">
+        <h1>Important Dates</h1>
+        <div id="calendar"></div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Calendar initialization
+            var calendarEl = document.getElementById('calendar');
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: window.innerWidth < 768 ? 'listMonth' : 'dayGridMonth', // Use list view on smaller screens
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,listMonth' // Only show month and agenda buttons
+                },
+                aspectRatio: 1.5, // Adjust the aspect ratio to make it more flexible
+                views: {
+                    listMonth: {
+                        buttonText: 'agenda'
+                    }
+                },
+                events: function(fetchInfo, successCallback, failureCallback) {
+                    // Fetch events from the Flask API
+                    fetch('/api/events')
+                        .then(response => response.json())
+                        .then(data => successCallback(data))
+                        .catch(error => failureCallback(error));
+                },
+                displayEventTime: false  // Hides the time display for events
+            });
+
+            calendar.render();
+
+            window.addEventListener('resize', () => {
+                if (window.innerWidth < 768 && calendar.view.type !== 'listMonth') {
+                    calendar.changeView('listMonth');
+                } else if (window.innerWidth >= 768 && calendar.view.type !== 'dayGridMonth') {
+                    calendar.changeView('dayGridMonth');
+                }
+            });
+            
+            function navigateTo(event, route) {
+                event.preventDefault(); // Prevent default anchor behavior if any
+
+                const routes = {
+                    'announcements': "{{ url_for('announcements') }}",
+                    'important_dates': "{{ url_for('important_dates') }}",
+                    'request_page': "{{ url_for('request_page') }}",
+                    'queue_number': "{{ url_for('queue_number') }}",
+                    'doa': "{{ url_for('doa') }}",
+                    'about': "{{ url_for('about') }}",
+                    'profile': "{{ url_for('profile') }}"
+                };
+
+                // Remove the `active` class from all buttons
+                const buttons = document.querySelectorAll('.sidebar button');
+                buttons.forEach(button => button.classList.remove('active'));
+
+                // Add the `active` class to the currently clicked button
+                event.currentTarget.classList.add('active');
+
+                // Navigate to the corresponding route if it exists
+                if (routes[route]) {
+                    window.location.href = routes[route];
+                } else {
+                    console.error(`Route "${route}" does not exist in the route map.`);
+                }
+            }
+
+            // Sidebar button active state handling
+            document.querySelectorAll('.sidebar button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+
+            // Dropdown toggle for profile section
+            function toggleDropdown() {
+                const dropdown = document.getElementById("dropdown-content");
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            }
+
+            // Close dropdown when clicking outside
+            window.onclick = function(event) {
+                if (!event.target.matches('.profile-btn')) {
+                    document.getElementById("dropdown-content").style.display = "none";
+                }
+            };
+
+            // Sidebar toggle function
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            function toggleSidebar() {
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('collapsed');
+            }
+
+            // Expose functions to global scope for inline HTML usage
+            window.navigateTo = navigateTo;
+            window.toggleDropdown = toggleDropdown;
+            window.toggleSidebar = toggleSidebar;
+        });
+    </script>
+</body>
+</html>

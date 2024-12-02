@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #E5D9F2;
+            color: #7743DB;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .container {
+            text-align: center;
+            border: 4px solid #A594F9;
+            padding: 2vh 3vw;
+            border-radius: 20px;
+            width: 90vw;
+            max-width: 800px;
+            background: #ffffff;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 2rem;
+            font-weight: 300;
+            font-family: 'Georgia', serif;
+            color: #7743DB;
+            margin-bottom: 10px;
+        }
+
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
+            background-color: #ccc2d1;
+            border: 5px solid rgba(205, 194, 247, 0.5);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        #video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .status {
+            font-size: 1.1em;
+            color: #A594F9;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .status .spinner-border {
+            margin-right: 8px;
+            color: #7743DB;
+        }
+
+        #register-button-container {
+            display: none;
+            margin-top: 10px;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: #7743DB;
+            border-color: #7743DB;
+            color: #ffffff;
+        }
+
+        .btn-primary:hover {
+            background-color: #A594F9;
+            border-color: #A594F9;
+        }
+
+        .btn-custom {
+            background-color: #7743DB;
+            border-color: #7743DB;
+            color: #ffffff;
+        }
+
+        .btn-custom:hover {
+            background-color: #A594F9;
+            border-color: #A594F9;
+        }
+
+        /* Media Queries */
+        @media (max-width: 1080px) {
+            .container {
+                padding: 4vh 5vw;
+                max-width: 700px;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .status {
+                font-size: 1.1em;
+            }
+
+            #register-button-container .btn {
+                font-size: 1.1rem;
+                padding: 10px 25px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                max-width: 600px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .status {
+                font-size: 1em;
+            }
+
+            #register-button-container .btn {
+                font-size: 1rem;
+                padding: 8px 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.3rem;
+            }
+
+            .status {
+                font-size: 0.9em;
+            }
+
+            #register-button-container .btn {
+                font-size: 0.9rem;
+                padding: 6px 15px;
+            }
+        }
+        .exit-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-family: 'Arial', sans-serif;
+            font-size: 1.2rem; /* Increased font size for better readability */
+            font-weight: bold;
+            color: white;
+            background-color: #7743DB; /* Original purple color */
+            border: none; /* Removed border */
+            padding: 12px 30px; /* Increased padding for a less compressed look */
+            border-radius: 25px; /* Smooth, rounded corners */
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
+            transition: all 0.3s ease;
+        }
+
+        .exit-button:hover {
+            background-color: #A594F9; /* Slightly darker purple on hover */
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3); /* Enhanced shadow effect */
+            transform: scale(1.05); /* Slight zoom-in effect on hover */
+        }
+
+        .exit-button:active {
+            background-color: #A594F9; /* Even darker purple on click */
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2); /* Reduced shadow on click */
+            transform: scale(1); /* Reset scale on click */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Facial Recognition</h1>
+        <!-- Display error message if it exists -->
+        {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+        {% endif %}
+
+        <!-- Video wrapper for responsive video feed -->
+        <div class="video-wrapper" id="video-wrapper">
+            <!-- Directly set the video feed URL to load immediately on page load -->
+            <img src="{{ url_for('video_feed_recognition') }}" id="video" class="img-fluid" alt="Video feed" />
+        </div>
+        <div class="status" id="status">
+            <div class="spinner-border" role="status" id="spinner"></div>
+            <span id="status-text">Waiting for face recognition . . .</span>
+        </div>
+        <div id="register-button-container">
+            <button id="register-button" class="btn btn-primary btn-lg rounded-pill">Register</button>
+            <button id="doa-button" class="btn btn-custom btn-lg rounded-pill">DOA</button>
+        </div>
+
+        <!-- Exit Button -->
+        <button class="btn btn-danger btn-lg exit-button" onclick="window.location.href='/'">Exit</button>
+    </div>
+
+    <script>
+        // Elements
+        let statusText = document.getElementById('status-text');
+        let spinner = document.getElementById('spinner');
+        let registerButtonContainer = document.getElementById('register-button-container');
+        let videoWrapper = document.getElementById('video-wrapper');
+        let video = document.getElementById('video');
+        let recognitionCounter = 0;
+
+        // Function to update the status message and spinner visibility
+        function updateStatus(text, showSpinner = true) {
+            statusText.textContent = text;
+            spinner.style.display = showSpinner ? 'inline-block' : 'none';
+        }
+
+        // Handle different recognition statuses
+        function handleRecognition(status) {
+            switch (status) {
+                case 'waiting':
+                    updateStatus('Waiting for face recognition . . .');
+                    registerButtonContainer.style.display = 'none';
+                    break;
+
+                case 'recognizing':
+                    updateStatus('Recognizing . . .');
+                    registerButtonContainer.style.display = 'none';
+                    break;
+
+                case 'recognized':
+                    recognitionCounter++;
+                    updateStatus(`Face Recognized! Count: ${recognitionCounter}`, false);
+                    registerButtonContainer.style.display = 'none';
+
+                    // Redirect after reaching the threshold
+                    if (recognitionCounter >= 3) {
+                        recognitionCounter = 0; // Reset counter after recognition success
+                        window.location.href = '/announcements';
+                    }
+                    break;
+
+                case 'unknown':
+                    updateStatus('Unrecognized User Detected! Please register.', false);
+                    recognitionCounter = 0;
+                    registerButtonContainer.style.display = 'flex';
+                    break;
+
+                default:
+                    // Handle unexpected or error states
+                    updateStatus('Error: Unable to process recognition status.', false);
+                    console.error(`Unexpected status received: ${status}`);
+                    registerButtonContainer.style.display = 'none';
+                    break;
+            }
+        }
+
+
+        // Check recognition status every second
+        function checkRecognitionStatus() {
+            fetch('/recognition_status')
+                .then(response => response.json())
+                .then(data => {
+                    handleRecognition(data.status);
+                })
+                .catch(error => {
+                    console.error('Error fetching recognition status:', error);
+                    updateStatus('Unable to connect to recognition server.', false);
+                });
+        }
+
+        video.onerror = function() {
+            updateStatus('Video feed unavailable. Please check your camera or network.', false);
+        };
+
+        setInterval(checkRecognitionStatus, 1000);
+
+        // Stop the video feed when a button is clicked
+        function stopVideoFeed() {
+            video.src = ''; // Remove video source to stop feed
+            videoWrapper.style.display = 'none';
+        }
+
+        // Event listeners for Register and DOA buttons
+        document.getElementById('register-button').addEventListener('click', function() {
+            stopVideoFeed();
+            window.location.href = '/register';
+        });
+
+        document.getElementById('doa-button').addEventListener('click', function() {
+            stopVideoFeed();
+            window.location.href = '/register/doa_unknown_user';
+        });
+    </script>    
+</body>
+</html>

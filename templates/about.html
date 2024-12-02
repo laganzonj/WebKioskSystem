@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <style>
+       /* General Body Styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #ffffff;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #4A4A4A; /* Neutral dark text color for readability */
+        }
+
+        .sidebar {
+            background-color: #CDC1FF;
+            padding: 20px;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+            left: 0;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-250px);
+        }
+
+        .hamburger-icon {
+            font-size: 1.5rem;
+            color: #602e9e;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        .sidebar img {
+            width: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .sidebar .logo-caption {
+            text-align: center;
+            font-weight: bold;
+            color: #602e9e;
+            margin-bottom: 20px;
+        }
+
+        .sidebar button {
+            font-weight: bold;
+            font-size: 15px;
+            width: 100%;
+            background-color: transparent;
+            border: 2px solid #602e9e;
+            padding: 10px;
+            border-radius: 100px;
+            color: #602e9e;
+            text-align: left;
+            margin: 15px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .sidebar button i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .sidebar button:hover,
+        .sidebar button.active {
+            background-color: white;
+            border-color: #602e9e;
+        }
+
+        /* Main Content Styling */
+        .content {
+            margin-left: 250px; /* Offset for sidebar */
+            width: calc(100% - 250px); /* Adjust width dynamically */
+            display: flex;
+            flex-direction: column;
+            justify-content: center; /* Center content vertically */
+            align-items: center; /* Center content horizontally */
+            text-align: center;
+            height: 100vh; /* Fill the viewport height */
+            padding: 20px;
+            background-color: #f9f9f9;
+            transition: margin-left 0.3s ease, width 0.3s ease;
+            box-sizing: border-box; /* Include padding in height/width calculations */
+        }
+
+        .content.collapsed {
+            margin-left: 0;
+            width: 100%; /* Full width when sidebar is collapsed */
+        }
+
+        /* Content Heading Styling */
+        .content h1 {
+            color: #602e9e;
+            font-size: 2.5rem; /* Larger font size for prominence */
+            font-weight: bold;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+
+        /* Paragraph Styling */
+        .about-details p {
+            font-size: 1.2rem;
+            color: #4A4A4A;
+            line-height: 1.8; /* Better spacing between lines */
+            max-width: 800px; /* Limit width for readability */
+            margin-bottom: 20px;
+        }
+
+        /* Profile Dropdown Styling */
+        .profile-section {
+            position: relative;
+        }
+
+        .profile-btn {
+            font-weight: bold;
+            font-size: 1rem;
+            width: 100%;
+            background-color: transparent;
+            border: 2px solid #602e9e;
+            padding: 10px;
+            border-radius: 50px;
+            color: #602e9e;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .profile-btn:hover {
+            background-color: #ffffff;
+            border-color: #602e9e;
+        }
+
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #b19cd9;
+            padding: 10px 0;
+            border-radius: 12px;
+            top: 100%; /* Dropdown below the button */
+            left: 50%; /* Center dropdown under the button */
+            transform: translateX(-50%);
+            min-width: 200px; /* Slightly wider for improved usability */
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+        }
+
+        .dropdown-content::after {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px;
+            border-style: solid;
+            border-color: transparent transparent #b19cd9 transparent;
+        }
+
+        .dropdown-content a {
+            color: #ffffff;
+            padding: 10px 15px; /* Slightly larger padding */
+            text-decoration: none;
+            display: block;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .dropdown-content a:hover {
+            background-color: #8e8eff;
+            border-radius: 8px;
+        }
+
+        /* Responsive Adjustments */
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-250px); /* Hide sidebar by default */
+            }
+
+            .sidebar.collapsed {
+                transform: translateX(0); /* Show sidebar when toggled */
+            }
+
+            .content {
+                margin-left: 0;
+                width: 100%; /* Full width on small screens */
+                padding: 10px;
+            }
+
+            .content h1 {
+                font-size: 2rem; /* Adjust heading size */
+            }
+
+            .about-details p {
+                font-size: 1rem; /* Adjust text size */
+                max-width: 100%; /* Allow full width text */
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Hamburger Icon -->
+    <div class="hamburger-icon" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <img src="{{ url_for('serve_image', filename='ccs_logo.png') }}" alt="Logo">
+        <div class="logo-caption">Dean's Office Assistant</div>
+        <button onclick="navigateTo(event, 'announcements')"><i class="fas fa-bullhorn"></i> ANNOUNCEMENT</button>
+        <button onclick="navigateTo(event, 'important_dates')"><i class="fas fa-calendar-alt"></i> IMPORTANT DATES</button>
+        <button onclick="navigateTo(event, 'request_page')"><i class="fas fa-file-alt"></i> REQUEST</button>
+        <button onclick="navigateTo(event, 'queue_number')"><i class="fas fa-print"></i> QUEUE NUMBER</button>
+        <button onclick="navigateTo(event, 'doa')"><i class="fas fa-robot"></i> DOA</button>
+        <button onclick="navigateTo('about')" class="active"><i class="fas fa-info-circle"></i> ABOUT</button>
+        
+        <!-- Profile Section -->
+        <button onclick="navigateTo(event, 'profile')" class="profile-btn">
+            <i class="fas fa-user"></i> PROFILE
+        </button>
+    </div>
+
+   <!-- Content -->
+    <div class="content" id="content">
+        <h1>About</h1>
+        <div class="about-details">
+            <p>
+                The Dean’s Office Assistant (DOA) System is an innovative platform designed to improve the services of the Dean’s Office and enhance the experience of students, faculty, and visitors at the College of Computer Studies.
+            </p>
+            <p>
+                Offering a range of services, the kiosk keeps users informed with announcements and important dates, allows easy submission of student requests, provides an efficient queuing system, and features the AI chatbot or DOA for quick assistance.
+            </p>
+            <p>
+                Developed by Lesly-Ann B. Victoria, Jonathan Q. Laganzon, and Carlo R. Caburnay.
+            </p>
+        </div>
+    </div>
+
+
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('collapsed');
+        }
+
+        function navigateTo(event, route) {
+            event.preventDefault(); // Prevent default anchor behavior if any
+
+            const routes = {
+                'announcements': "{{ url_for('announcements') }}",
+                'important_dates': "{{ url_for('important_dates') }}",
+                'request_page': "{{ url_for('request_page') }}",
+                'queue_number': "{{ url_for('queue_number') }}",
+                'doa': "{{ url_for('doa') }}",
+                'about': "{{ url_for('about') }}",
+                'profile': "{{ url_for('profile') }}"
+            };
+
+            // Remove the `active` class from all buttons
+            const buttons = document.querySelectorAll('.sidebar button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Add the `active` class to the currently clicked button
+            event.currentTarget.classList.add('active');
+
+            // Navigate to the corresponding route if it exists
+            if (routes[route]) {
+                window.location.href = routes[route];
+            } else {
+                console.error(`Route "${route}" does not exist in the route map.`);
+            }
+        }
+
+        // Manage active state for sidebar buttons
+        document.querySelectorAll('.sidebar button').forEach(button => {
+            button.addEventListener('click', () => {
+                document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                localStorage.setItem('activeButton', button.textContent.trim());
+            });
+
+            if (button.textContent.trim() === localStorage.getItem('activeButton')) {
+                button.classList.add('active');
+            }
+        });
+
+        // Toggle profile dropdown visibility
+        function toggleDropdown() {
+            var dropdown = document.getElementById("dropdown-content");
+            dropdown.style.display = (dropdown.style.display === "none" || dropdown.style.display === "") ? "block" : "none";
+        }
+
+        // Close the dropdown if clicked outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.profile-btn')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.style.display === "block") {
+                        openDropdown.style.display = "none";
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

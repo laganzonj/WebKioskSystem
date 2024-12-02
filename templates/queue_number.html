@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Queue Number</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #ffffff;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styling */
+        .sidebar {
+            background-color: #CDC1FF;
+            padding: 20px;
+            height: 100vh;
+            width: 250px;
+            position: fixed;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-250px);
+        }
+
+        /* Hamburger Icon for Collapsing Sidebar */
+        .hamburger-icon {
+            font-size: 1.5rem;
+            color: #602e9e;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        /* Sidebar Logo and Captions */
+        .sidebar img {
+            width: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .sidebar .logo-caption {
+            text-align: center;
+            font-weight: bold;
+            color: #602e9e;
+            margin-bottom: 20px;
+        }
+
+        /* Sidebar Buttons */
+        .sidebar button {
+            font-size: 15px;
+            font-weight: bold;
+            width: 100%;
+            padding: 10px;
+            margin: 15px 0;
+            border: 2px solid #602e9e;
+            border-radius: 100px;
+            background-color: transparent;
+            color: #602e9e;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .sidebar button i {
+            font-size: 20px;
+            margin-right: 10px;
+        }
+
+        .sidebar button:hover,
+        .sidebar button.active {
+            background-color: white;
+            border-color: #602e9e;
+        }
+
+        /* Main Content Styling */
+        .content {
+            margin-left: 250px;
+            width: 100%;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: margin-left 0.3s ease;
+        }
+
+        .content.collapsed {
+            margin-left: 0;
+        }
+
+        .content h1 {
+            color: #602e9e;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        /* Queue Buttons Styling */
+        .btn-queue {
+            background-color: #A594F9;
+            color: white;
+            width: 250px;
+            height: 150px;
+            font-size: 24px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            flex-direction: column;
+        }
+
+        .queue-buttons-container {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        /* Queue Modal Styling */
+        #queueModal .modal-content {
+            border: 2px solid #7743DB;
+            padding: 20px;
+            background-color: #f9f9f9;
+        }
+
+        #queueNumber {
+            font-size: 3rem;
+            color: #0000ff;
+            text-align: center;
+        }
+
+        /* Modal Header Styling - Full Width */
+        .modal-header {
+            background-color: #7743DB; /* Purple tone */
+            color: #ffffff; /* White text for contrast */
+            border-bottom: 2px solid #602e9e; /* Darker purple border */
+            padding: 15px; /* Adjusted padding */
+            margin: 0; /* Remove any margin */
+            border-top-left-radius: 10px; /* Match modal border radius */
+            border-top-right-radius: 10px; /* Match modal border radius */
+        }
+
+        /* Close Button Styling */
+        .modal-header .close {
+            color: #ffffff;
+            font-size: 1.2rem;
+            opacity: 1;
+            transition: color 0.3s ease;
+        }
+
+        .modal-header .close:hover {
+            color: #c2a1e6; /* Lighter purple on hover */
+        }
+
+        /* Modal Content Styling */
+        .modal-content {
+            background-color: #f3e7fc; /* Light purple tone */
+            border: 2px solid #7743DB;
+            border-radius: 10px; /* Rounded corners */
+            padding: 0; /* Remove padding to ensure full-width header */
+            overflow: hidden; /* Ensure no overflow from header/content */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+        }
+
+        /* Modal Body Styling */
+        .modal-body {
+            padding: 20px; /* Add padding inside the body */
+            color: #333333; /* Neutral text color */
+            text-align: center;
+        }
+
+        /* Modal Footer Styling */
+        .modal-footer {
+            border-top: 1px solid #ddd; /* Subtle border for footer separation */
+            padding: 15px;
+            justify-content: center;
+        }
+
+        /* Buttons */
+        .modal-footer .btn-primary {
+            background-color: #7743DB; /* Primary purple */
+            border: 1px solid #602e9e; /* Darker border */
+            color: #ffffff;
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .modal-footer .btn-primary:hover {
+            background-color: #602e9e; /* Darker purple */
+            color: #f3e7fc; /* Contrast text */
+        }
+
+        .modal-footer .btn-secondary {
+            background-color: #e0d8f9; /* Light purple */
+            border: 1px solid #c2a1e6; /* Matching border */
+            color: #7743DB; /* Text color */
+            border-radius: 5px;
+            padding: 10px 20px;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .modal-footer .btn-secondary:hover {
+            background-color: #c2a1e6; /* Slightly darker purple */
+            color: #602e9e; /* Darker text */
+        }
+
+        /* Logo Background */
+        .logo-background {
+            opacity: 0.1; /* Faint logo in the background */
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 150px;
+            height: 150px;
+            z-index: 0; /* Behind the text */
+        }
+
+        /* Text Content */
+        .text-content {
+            position: relative;
+            z-index: 1; /* Above the logo */
+            color: #602e9e; /* Text matching theme */
+        }
+
+        /* Close Button */
+        .modal-header .close {
+            color: #ffffff; /* White close icon for contrast */
+            opacity: 1;
+            font-size: 1.2rem;
+            transition: color 0.3s ease;
+        }
+
+        .modal-header .close:hover {
+            color: #c2a1e6; /* Lighter purple on hover */
+        }
+
+        /* Profile Button Styling */
+        .profile-btn {
+            font-size: 15px;
+            font-weight: bold;
+            padding: 10px;
+            border: 2px solid #602e9e;
+            border-radius: 50px;
+            background-color: transparent;
+            color: #602e9e;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .profile-btn:hover {
+            background-color: white;
+            border-color: #602e9e;
+        }
+
+        /* Profile Dropdown Styling */
+        .profile-section {
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Sidebar Toggle Icon -->
+    <div class="hamburger-icon" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar Section -->
+    <div class="sidebar" id="sidebar">
+        <img src="{{ url_for('serve_image', filename='ccs_logo.png') }}" alt="Logo">
+        <div class="logo-caption">Dean's Office Assistant</div>
+        <button onclick="navigateTo(event, 'announcements')"><i class="fas fa-bullhorn"></i> ANNOUNCEMENT</button>
+        <button onclick="navigateTo(event, 'important_dates')"><i class="fas fa-calendar-alt"></i> IMPORTANT DATES</button>
+        <button onclick="navigateTo(event, 'request_page')"><i class="fas fa-file-alt"></i> REQUEST</button>
+        <button onclick="navigateTo(event, 'queue_number')" class="active"><i class="fas fa-print"></i> QUEUE NUMBER</button>
+        <button onclick="navigateTo(event, 'doa')"><i class="fas fa-robot"></i> DOA</button>
+        <button onclick="navigateTo(event, 'about')"><i class="fas fa-info-circle"></i> ABOUT</button>
+        <button onclick="navigateTo(event, 'profile')" class="profile-btn">
+            <i class="fas fa-user"></i> PROFILE
+        </button>
+    </div>
+
+    <!-- Main Content Section -->
+    <div class="content" id="content">
+        <h1>Queue Number</h1>
+
+        <!-- Alerts Section -->
+        <div class="container mt-4">
+            <!-- Placeholder for client-side JavaScript alerts -->
+            <div id="alert-container" class="container mt-4"></div>
+
+            <!-- Server-side alerts from Flask -->
+            {% if alerts %}
+            <div>
+                {% for alert in alerts %}
+                <div class="alert alert-{{ alert.type }} d-flex align-items-center p-3" role="alert">
+                    <svg class="bi flex-shrink-0 me-3 icon" role="img" aria-label="{{ alert.type|capitalize }}:">
+                        {% if alert.type == 'success' %}
+                            <use xlink:href="#check-circle-fill"/>
+                        {% elif alert.type == 'danger' %}
+                            <use xlink:href="#exclamation-triangle-fill"/>
+                        {% endif %}
+                    </svg>
+                    <div>
+                        <strong>{{ alert.type|capitalize }}:</strong> {{ alert.message }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Queue Buttons Section -->
+        <div class="queue-buttons-container">
+            <button class="btn btn-queue" onclick="showQueueInfo('Medical', 'Clinic', 'ticket')">
+                <i class="fas fa-medkit" style="font-size: 30px; display: block; margin-bottom: 5px;"></i>
+                Medical
+            </button>
+
+            <button class="btn btn-queue" onclick="showQueueInfo('Interview', 'Interview Room', 'ticket')">
+                <i class="fas fa-user-check" style="font-size: 30px; display: block; margin-bottom: 5px;"></i>
+                Interview
+            </button>
+
+            <button class="btn btn-queue" onclick="showQueueInfo('Payment Transaction', 'Cashier', 'detailed')">
+                <i class="fas fa-money-check-alt" style="font-size: 30px; display: block; margin-bottom: 5px;"></i>
+                Payment Transaction
+            </button>
+        </div>
+    </div>
+
+    <!-- Ticket-Like Modal -->
+    <div class="modal fade" id="queueTicketModal" tabindex="-1" role="dialog" aria-labelledby="queueTicketModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="queue-modal-content text-center">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title" id="queueTicketModalLabel">Your Queue Ticket</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <!-- Modal Body -->
+                    <div class="modal-body">
+                        <img class="logo-background" src="{{ url_for('serve_image', filename='print.PNG') }}" alt="Logo" class="mt-3">
+                        <div class="text-content">
+                            <h4 id="ticketServiceType" class="mb-3"></h4>
+                            <p class="font-weight-bold">Queue Number:</p>
+                            <h1 id="ticketQueueNumber" class="text-primary font-weight-bold"></h1>
+                            <p>Date: <span id="ticketDate"></span></p>
+                            <p>Time: <span id="ticketTime"></span></p>
+                        </div>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Queue Information Modal -->
+    <div class="modal fade" id="queueInfoModal" tabindex="-1" role="dialog" aria-labelledby="queueInfoModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="queue-modal-content">
+                    <div class="modal-header bg-info text-white">
+                        <h5 class="modal-title" id="queueInfoModalLabel">Queue Number Information</h5>
+                        <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <img class="logo-background" src="{{ url_for('serve_image', filename='print.PNG') }}" alt="Logo" class="mt-3">
+                        <p>Student ID: <span id="infoStudentId"></span></p>
+                        <p>Service Type: <span id="infoServiceType"></span></p>
+                        <p>Location: <span id="infoLocation"></span></p>
+                        <p>Date: <span id="infoDate"></span></p>
+                        <p>Time: <span id="infoTime"></span></p>
+                        <p class="font-weight-bold">Queue Number:</p>
+                        <h1 id="infoQueueNumber" class="text-primary queue-number-display"></h1>
+                    </div>
+                    <div class="modal-footer justify-content-center">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" onclick="saveQueueInfo()">Save</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            // Set the active button based on localStorage
+            const activeButton = localStorage.getItem('activeButton');
+            if (activeButton) {
+                document.querySelectorAll('.sidebar button').forEach(button => {
+                    if (button.textContent.trim() === activeButton) {
+                        button.classList.add('active');
+                    }
+                });
+            }   
+    
+            // Sidebar button event listener for active state and navigation
+            document.querySelectorAll('.sidebar button').forEach(button => {
+                button.addEventListener('click', () => {
+                    document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                    localStorage.setItem('activeButton', button.textContent.trim());
+    
+                    const route = button.getAttribute('onclick').split("'")[1];
+                    navigateTo(route);
+                });
+            });
+        });
+    
+        function navigateTo(event, route) {
+            event.preventDefault(); // Prevent default anchor behavior
+
+            // Check if the clicked target is the button itself
+            const clickedButton = event.currentTarget;
+            if (!clickedButton.matches('button')) {
+                console.warn("Click did not originate from a button.");
+                return;
+            }
+
+            const routes = {
+                'announcements': "{{ url_for('announcements') }}",
+                'important_dates': "{{ url_for('important_dates') }}",
+                'request_page': "{{ url_for('request_page') }}",
+                'queue_number': "{{ url_for('queue_number') }}",
+                'doa': "{{ url_for('doa') }}",
+                'about': "{{ url_for('about') }}",
+                'profile': "{{ url_for('profile') }}"
+            };
+
+            // Remove the `active` class from all buttons
+            const buttons = document.querySelectorAll('.sidebar button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Add the `active` class to the clicked button
+            clickedButton.classList.add('active');
+
+            // Navigate to the corresponding route if it exists
+            if (routes[route]) {
+                window.location.href = routes[route];
+            } else {
+                console.error(`Route "${route}" does not exist in the route map.`);
+            }
+        }
+
+        function showQueueInfo(serviceType, location, format = 'detailed') {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            if (loadingIndicator) loadingIndicator.style.display = 'block';
+
+            // Fetch student ID first
+            fetch('/get_student_id')
+                .then(response => response.json())
+                .then(data => {
+                    const studentId = data.student_id;
+
+                    if (!studentId) {
+                        showAlert("Student ID not found. Please log in.", 'danger');
+                        return;
+                    }
+
+                    // Check if the user already has a queue number
+                    fetch(`/get_existing_queue?student_id=${studentId}&service_type=${encodeURIComponent(serviceType)}`)
+                        .then(response => response.json())
+                        .then(queueData => {
+                            if (queueData && queueData.queue_number) {
+                                // If queue exists, populate and show the ticket modal
+                                populateTicketModal({
+                                    student_id: studentId,
+                                    service_type: serviceType,
+                                    location: location,
+                                    queue_number: queueData.queue_number,
+                                    date: queueData.date,
+                                    time: queueData.time,
+                                });
+                            } else {
+                                // If no queue exists, fetch a new queue number and show the detailed modal
+                                fetch(`/get_queue_number?service_type=${encodeURIComponent(serviceType)}`)
+                                    .then(response => response.json())
+                                    .then(newQueueData => {
+                                        populateDetailedModal({
+                                            student_id: studentId,
+                                            service_type: serviceType,
+                                            location: location,
+                                            queue_number: newQueueData.queue_number,
+                                        });
+                                    });
+                            }
+                        });
+                })
+                .catch(error => {
+                    console.error('Error fetching queue data:', error);
+                    showAlert("An error occurred while fetching queue information.", 'danger');
+                })
+                .finally(() => {
+                    if (loadingIndicator) loadingIndicator.style.display = 'none';
+                });
+        }
+
+        function populateTicketModal(data) {
+            document.getElementById('ticketServiceType').textContent = data.service_type || "N/A";
+            document.getElementById('ticketQueueNumber').textContent = data.queue_number || "N/A";
+            document.getElementById('ticketDate').textContent = data.date || "N/A";
+            document.getElementById('ticketTime').textContent = data.time || "N/A";
+
+            // Show the modal using Bootstrap 5's JavaScript API
+            const modal = new bootstrap.Modal(document.getElementById('queueTicketModal'));
+            modal.show();
+        }
+
+        function populateDetailedModal(data) {
+            const now = new Date();
+            const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD
+            const currentTime = now.toTimeString().split(' ')[0]; // HH:MM:SS
+
+            document.getElementById('infoStudentId').textContent = data.student_id || "N/A";
+            document.getElementById('infoServiceType').textContent = data.service_type || "N/A";
+            document.getElementById('infoLocation').textContent = data.location || "N/A";
+            document.getElementById('infoDate').textContent = currentDate;
+            document.getElementById('infoTime').textContent = currentTime;
+            document.getElementById('infoQueueNumber').textContent = data.queue_number || "N/A";
+
+            // Show Bootstrap 5 modal
+            const modal = new bootstrap.Modal(document.getElementById('queueInfoModal'));
+            modal.show();
+        }
+
+        function saveQueueInfo() {
+            const queueData = {
+                student_id: document.getElementById('infoStudentId').textContent,
+                service_type: document.getElementById('infoServiceType').textContent,
+                location: document.getElementById('infoLocation').textContent,
+                date: document.getElementById('infoDate').textContent,
+                time: document.getElementById('infoTime').textContent,
+                queue_number: document.getElementById('infoQueueNumber').textContent
+            };
+
+            fetch('/save_queue', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(queueData)
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.status === "success") {
+                        showAlert("Queue saved successfully!", 'success');
+                        $('#queueInfoModal').modal('hide');
+                        showQueueInfo(queueData.service_type, queueData.location);
+                    } else {
+                        showAlert(data.message || "Failed to save the queue. Please try again.", 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error saving queue:', error);
+                    showAlert("An error occurred while saving the queue. Please try again.", 'danger');
+                });
+        }
+
+        // Helper function to dynamically show Bootstrap alerts
+        function showAlert(message, type = 'success') {
+            const alertContainer = document.getElementById('alert-container');
+
+            // Clear previous alerts
+            alertContainer.innerHTML = '';
+
+            // Create a new alert
+            const alertHtml = `
+                <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                    <strong>${type === 'success' ? 'Success' : 'Error'}:</strong> ${message}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            `;
+            alertContainer.innerHTML = alertHtml;
+
+            // Automatically remove the alert after 5 seconds
+            setTimeout(() => {
+                const alertElement = document.querySelector('.alert');
+                if (alertElement) alertElement.remove();
+            }, 5000);
+        }
+        
+        // Function to toggle the dropdown for the profile section
+        function toggleDropdown() {
+            const dropdown = document.getElementById("dropdown-content");
+            dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+        }
+    
+        // Close dropdown when clicking outside
+        window.addEventListener('click', (event) => {
+            const dropdown = document.getElementById("dropdown-content");
+            if (!event.target.closest('.profile-btn') && dropdown) {
+                dropdown.style.display = "none";
+            }
+        });
+    
+        // Sidebar toggle function for collapsing and expanding the sidebar
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('collapsed');
+        }
+    
+        // Expose functions globally for inline HTML usage
+        window.navigateTo = navigateTo;
+        window.showQueueInfo = showQueueInfo;
+        window.loadStudentId = loadStudentId;
+        window.saveQueueInfo = saveQueueInfo;
+        window.toggleDropdown = toggleDropdown;
+        window.toggleSidebar = toggleSidebar;
+    </script>    
+</body>
+</html>

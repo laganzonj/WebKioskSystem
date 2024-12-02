@@ -1,0 +1,39 @@
+# Core Framework
+Flask==3.0.3
+Werkzeug==3.1.3
+Jinja2==3.1.4
+itsdangerous==2.2.0
+click==8.1.7
+
+# Machine Learning and Computer Vision
+numpy==2.0.2
+opencv-python-headless==4.10.0.84
+tensorflow==2.18.0
+insightface==0.7.3
+scikit-learn==1.5.2
+scipy==1.14.1
+pillow==11.0.0
+albumentations==1.4.21
+h5py==3.12.1
+
+# Database Management
+mysql-connector-python==9.1.0
+PyMySQL==1.1.1
+SQLAlchemy==2.0.36
+pandas==2.2.3
+pytz==2024.2
+
+# String Matching, Spell Checking, and Utilities
+fuzzywuzzy==0.18.0
+RapidFuzz==3.10.1
+spellchecker==0.8.1
+dateparser==1.2.0
+python-dateutil==2.9.0.post0
+
+# Logging and Utilities
+coloredlogs==15.0.1
+humanfriendly==10.0
+tqdm==4.67.0
+
+# Deployment and Optimization
+gunicorn==23.0.0

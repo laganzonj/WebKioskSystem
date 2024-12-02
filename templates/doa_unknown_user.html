@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dean's Office Assistant (DOA)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset margins and padding for full-screen */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+    
+        body, html {
+            font-family: 'Roboto', sans-serif;
+            height: 100%;
+            width: 100%;
+            background-color: #E5D9F2;
+            overflow: hidden; /* Ensures no scrolling for full-screen layout */
+        }
+    
+        /* Chat container styling */
+        .chat-container {
+            width: 100%;
+            height: 100%;
+            background-color: #ffffff;
+            border: 4px solid #A594F9;
+            border-radius: 0; /* Removed rounded corners for full-screen coverage */
+            box-shadow: 0px 4px 20px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Prevents content from spilling out */
+        }
+    
+        /* Chat header */
+        .chat-header {
+            padding: 15px;
+            background-color: #8e8eff;
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: bold;
+        }
+    
+        /* Chat messages area */
+        .chat-messages {
+            padding: 15px;
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #F5EEFF;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+    
+        /* Bot message styling */
+        .bot-message {
+            align-self: flex-start;
+            background-color: #E6E6FF;
+            border-radius: 15px;
+            padding: 10px 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+            font-size: 1rem;
+            color: #5142d6;
+            line-height: 1.5;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+        }
+    
+        /* User message styling */
+        .user-message {
+            align-self: flex-end;
+            background-color: #A594F9;
+            color: white;
+            border-radius: 15px;
+            padding: 10px 15px;
+            max-width: 70%;
+            word-wrap: break-word;
+            font-size: 1rem;
+            line-height: 1.5;
+            box-shadow: 0px 2px 6px rgba(0, 0, 0, 0.1);
+        }
+    
+        /* Chat footer */
+        .chat-footer {
+            display: flex;
+            align-items: center;
+            padding: 10px 20px; /* Reduced padding for a smaller footer */
+            background-color: #ffffff;
+            border-top: 2px solid #E5D9F2;
+            gap: 15px; /* Spacing between elements */
+        }
+    
+        /* Input styling */
+        .chat-input-container {
+            display: flex;
+            align-items: center;
+            flex-grow: 1;
+            gap: 10px;
+        }
+    
+        .chat-input-container input {
+            flex-grow: 1;
+            padding: 10px 15px;
+            border-radius: 20px;
+            border: 2px solid #ddd;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+            min-height: 40px; /* Default input height */
+            max-height: 200px; /* Maximum input height */
+            overflow-y: auto; /* Allow scrolling if input exceeds max height */
+            resize: none; /* Prevent manual resizing */
+        }
+    
+        .chat-input-container input:focus {
+            border-color: #5142d6;
+            box-shadow: 0px 0px 5px rgba(81, 66, 214, 0.5);
+        }
+    
+        /* Back button styling */
+        .back-button {
+            background-color: #F5EEFF;
+            color: #5142d6;
+            border: 2px solid #A594F9;
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 5px; /* Adds spacing between Back button and input area */
+            flex-shrink: 0; /* Prevent button from shrinking */
+        }
+    
+        .back-button:hover {
+            background-color: #A594F9;
+            color: white;
+        }
+    
+        /* Send button styling */
+        .chat-input-container button {
+            background-color: #5142d6;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 15px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+        }
+    
+        .chat-input-container button:hover {
+            background-color: #5a4ebd;
+            transform: scale(1.05);
+        }
+    
+        .chat-input-container button:active {
+            background-color: #3b32b5;
+            transform: scale(0.95);
+        }
+    
+        /* Spinner for loading */
+        .spinner {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 10px auto;
+        }
+    
+        .spinner > div {
+            width: 8px;
+            height: 8px;
+            background-color: #5142d6;
+            border-radius: 50%;
+            margin: 0 3px;
+            animation: sk-bouncedelay 1.4s infinite ease-in-out both;
+        }
+    
+        .spinner .bounce1 {
+            animation-delay: -0.32s;
+        }
+    
+        .spinner .bounce2 {
+            animation-delay: -0.16s;
+        }
+    
+        @keyframes sk-bouncedelay {
+            0%, 80%, 100% {
+                transform: scale(0);
+            }
+            40% {
+                transform: scale(1.0);
+            }
+        }
+    
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .chat-header {
+                font-size: 1.3rem;
+                padding: 12px;
+            }
+    
+            .chat-input-container input {
+                font-size: 0.9rem;
+            }
+    
+            .chat-input-container button {
+                font-size: 0.9rem;
+                padding: 10px 15px;
+            }
+    
+            .back-button {
+                font-size: 0.9rem;
+                padding: 8px 10px;
+            }
+        }
+    
+        @media (max-width: 480px) {
+            .chat-header {
+                font-size: 1.2rem;
+                padding: 10px;
+            }
+    
+            .chat-input-container input {
+                padding: 8px;
+                font-size: 0.85rem;
+            }
+    
+            .chat-input-container button {
+                font-size: 0.85rem;
+                padding: 8px 10px;
+            }
+    
+            .back-button {
+                font-size: 0.85rem;
+                padding: 8px 10px;
+            }
+        }
+    </style>       
+</head>
+<body>
+    <div class="chat-container">
+        <!-- Chat header -->
+        <div class="chat-header">
+            Dean's Office Assistant (DOA)
+        </div>
+
+        <!-- Chat messages area -->
+        <div id="chat-box" class="chat-messages">
+            <div class="bot-message">Hi! How can I help you?</div>
+        </div>
+
+        <!-- Chat input and Back button container -->
+        <div class="chat-footer">
+            <button class="back-button" onclick="window.location.href='/login'">BACK</button>
+            <div class="chat-input-container">
+                <input type="text" id="user_input" placeholder="Type your message..." onkeydown="checkEnter(event)">
+                <button onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Function to send a message
+        function sendMessage() {
+            let userInput = document.getElementById('user_input').value;
+            if (!userInput) return;
+
+            let chatBox = document.getElementById('chat-box');
+            document.getElementById('user_input').disabled = true;  // Disable input during request
+
+            let userMessageDiv = document.createElement('div');
+            userMessageDiv.classList.add('message-box', 'user-message');
+            userMessageDiv.textContent = userInput;
+            chatBox.appendChild(userMessageDiv);
+
+            // Clear the input box after sending the query
+            document.getElementById('user_input').value = '';
+
+            // Create a spinner div and add it to the chatBox
+            let spinnerDiv = document.createElement('div');
+            spinnerDiv.classList.add('message-box', 'bot-message');
+            spinnerDiv.innerHTML = `
+                <div class="spinner">
+                    <div class="bounce1"></div>
+                    <div class="bounce2"></div>
+                    <div class="bounce3"></div>
+                </div>
+            `;
+            chatBox.appendChild(spinnerDiv);
+
+            // Scroll to the bottom
+            chatBox.scrollTop = chatBox.scrollHeight;
+
+            fetch('/get_response_unreg', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    message: userInput,
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Bot Response: ", data.response);
+
+                // Replace spinner with the bot response
+                spinnerDiv.innerHTML = data.response;
+
+                chatBox.scrollTop = chatBox.scrollHeight;  // Auto-scroll to the bottom of the chat
+                document.getElementById('user_input').disabled = false;  // Re-enable input
+                document.getElementById('user_input').focus();  // Bring focus back to input field
+            })
+            .catch(error => {
+                console.error('Error:', error);
+
+                // Append error message to chatbox
+                spinnerDiv.innerHTML = 'Something went wrong. Please try again.';
+                document.getElementById('user_input').disabled = false;
+            });
+        }
+
+        // Function to check if Enter key is pressed
+        function checkEnter(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();  // Prevent the default form submission or page reload
+                sendMessage();  // Trigger the sendMessage function when Enter is pressed
+            }
+        }
+
+    </script>
+</body>
+</html>

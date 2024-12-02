@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Announcements</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #ffffff;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            background-color: #CDC1FF;
+            padding: 20px;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-250px);
+        }
+
+        .hamburger-icon {
+            font-size: 1.5rem;
+            color: #602e9e;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        .sidebar img {
+            width: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .sidebar .logo-caption {
+            text-align: center;
+            font-weight: bold;
+            color: #602e9e;
+            margin-bottom: 20px;
+        }
+
+        .sidebar button {
+            font-weight: bold;
+            font-size: 15px;
+            width: 100%;
+            background-color: transparent;
+            border: 2px solid #602e9e;
+            padding: 10px;
+            border-radius: 100px;
+            color: #602e9e;
+            text-align: left;
+            margin: 15px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .sidebar button i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .sidebar button:hover,
+        .sidebar button.active {
+            background-color: white;
+            border-color: #602e9e;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: margin-left 0.3s ease;
+        }
+
+        .content.collapsed {
+            margin-left: 0;
+        }
+
+        .content h1 {
+            color: #4A4A4A;
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            color: #602e9e;
+            text-align: center;
+        }
+
+        /* Grid layout for announcements */
+        .announcements-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 100%;
+            padding: 10px;
+            justify-items: center;
+        }
+
+        .announcement-item img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s;
+        }
+
+        .announcement-item img:hover {
+            transform: scale(1.05);
+        }
+
+        /* Profile button styling */
+        .profile-btn {
+            font-weight: bold;
+            font-size: 15px;
+            width: 100%;
+            background-color: transparent;
+            border: 2px solid #602e9e;
+            padding: 10px;
+            border-radius: 50px;
+            color: #602e9e;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.3s, border-color 0.3s;
+            position: relative;
+        }
+
+        .profile-btn:hover {
+            background-color: white;
+            border-color: #602e9e;
+        }
+
+        /* Profile dropdown container */
+        .profile-section {
+            position: relative;
+        }
+
+        /* Dropdown content as a pop-up above the button */
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: #b19cd9;
+            padding: 10px 0;
+            border-radius: 12px;
+            bottom: 60px; /* Positions dropdown above the button */
+            left: 50%;
+            transform: translateX(-50%);
+            min-width: 160px;
+            box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.3);
+            z-index: 1;
+            text-align: center;
+        }
+
+        /* Arrow on top of dropdown to point to profile button */
+        .dropdown-content::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px;
+            border-style: solid;
+            border-color: #b19cd9 transparent transparent transparent;
+        }
+
+        /* Dropdown items */
+        .dropdown-content p {
+            color: white;
+            padding: 8px 15px;
+            margin: 0;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        /* Hover effect on dropdown items */
+        .dropdown-content p:hover {
+            background-color: #8e8eff;
+            border-radius: 8px;
+        }
+
+        /* Modal Styling */
+        .modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal img {
+            max-width: 90%;
+            max-height: 90%;
+            transition: transform 0.3s ease;
+        }
+
+        /* Aesthetic Close Button */
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #ffffff;
+            font-size: 30px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s ease;
+        }
+
+        .close:hover {
+            color: #8e8eff; /* Aesthetic color for hover */
+        }
+
+        #imageModal {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="hamburger-icon" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <img src="{{ url_for('serve_image', filename='ccs_logo.png') }}" alt="Logo">
+        <div class="logo-caption">Dean's Office Assistant</div>
+        <button onclick="navigateTo(event, 'announcements')" class="active"><i class="fas fa-bullhorn"></i> ANNOUNCEMENT</button>
+        <button onclick="navigateTo(event, 'important_dates')"><i class="fas fa-calendar-alt"></i> IMPORTANT DATES</button>
+        <button onclick="navigateTo(event, 'request_page')"><i class="fas fa-file-alt"></i> REQUEST</button>
+        <button onclick="navigateTo(event, 'queue_number')"><i class="fas fa-print"></i> QUEUE NUMBER</button>
+        <button onclick="navigateTo(event, 'doa')"><i class="fas fa-robot"></i> DOA</button>
+        <button onclick="navigateTo(event, 'about')"><i class="fas fa-info-circle"></i> ABOUT</button>
+        
+        <!-- Profile Section -->
+        <button onclick="navigateTo(event, 'profile')" class="profile-btn">
+            <i class="fas fa-user"></i> PROFILE
+        </button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="content" id="content">
+        <h1>Announcements</h1>
+        <div class="announcements-grid">
+            {% for announcement in announcements %}
+                <div class="announcement-item">
+                    <h5 class="text-center">{{ announcement.title }}</h5>
+                    <!-- Only images should trigger the modal -->
+                    <img src="{{ url_for('get_announcement_image', id=announcement.id) }}" alt="{{ announcement.title }}">
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Image Modal -->
+    <div id="imageModal" class="modal">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img id="modalImage" src="" alt="Announcement Image">
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+        function navigateTo(event, route) {
+            event.preventDefault(); // Prevent default anchor behavior if any
+
+            const routes = {
+                'announcements': "{{ url_for('announcements') }}",
+                'important_dates': "{{ url_for('important_dates') }}",
+                'request_page': "{{ url_for('request_page') }}",
+                'queue_number': "{{ url_for('queue_number') }}",
+                'doa': "{{ url_for('doa') }}",
+                'about': "{{ url_for('about') }}",
+                'profile': "{{ url_for('profile') }}"
+            };
+
+            // Remove the `active` class from all buttons
+            const buttons = document.querySelectorAll('.sidebar button');
+            buttons.forEach(button => button.classList.remove('active'));
+
+            // Add the `active` class to the currently clicked button
+            event.currentTarget.classList.add('active');
+
+            // Navigate to the corresponding route if it exists
+            if (routes[route]) {
+                window.location.href = routes[route];
+            } else {
+                console.error(`Route "${route}" does not exist in the route map.`);
+            }
+        }
+
+        // Sidebar and content toggle for sidebar collapse functionality
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+
+        function toggleSidebar() {
+            sidebar.classList.toggle('collapsed');
+            content.classList.toggle('collapsed');
+        }
+
+            // Open modal function, only called when image is clicked
+            function openModal(imageSrc) {
+                if (imageSrc) { // Ensure there’s an image source
+                    console.log("Modal opened with image source:", imageSrc);
+                    const modal = document.getElementById("imageModal");
+                    const modalImage = document.getElementById("modalImage");
+                    modalImage.src = imageSrc;
+                    modal.style.display = "flex"; // Show modal
+                } else {
+                    console.log("openModal called without an image source!");
+                }
+            }
+    
+            // Close modal function
+            function closeModal() {
+                const modal = document.getElementById("imageModal");
+                modal.style.display = "none";
+                document.getElementById("modalImage").style.transform = "scale(1)"; // Reset zoom
+            }
+
+             // Attach openModal function to image clicks only
+             document.querySelectorAll('.announcement-item img').forEach(img => {
+                img.addEventListener('click', function() {
+                    openModal(this.src); // Opens modal with clicked image source
+                });
+            });           
+    
+            // Zoom functionality for modal image
+            document.getElementById("imageModal").addEventListener("wheel", function (e) {
+                const modal = document.getElementById("imageModal");
+                const modalImage = document.getElementById("modalImage");
+    
+                if (modal.style.display === "flex") {
+                    e.preventDefault();
+                    let scale = parseFloat(modalImage.style.transform.replace("scale(", "").replace(")", "")) || 1;
+                    scale += e.deltaY < 0 ? 0.1 : -0.1;
+                    scale = Math.min(Math.max(scale, 0.5), 2); // Limit zoom between 0.5x and 2x
+                    modalImage.style.transform = `scale(${scale})`;
+                }
+            });
+
+            // Sidebar button active state handling
+            document.querySelectorAll('.sidebar button').forEach(button => {
+                button.addEventListener('click', (event) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+
+                    document.querySelectorAll('.sidebar button').forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+    
+            // Dropdown toggle for profile section
+            function toggleDropdown() {
+                const dropdown = document.getElementById("dropdown-content");
+                dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+            }
+    
+            // Close dropdown when clicked outside
+            window.onclick = function(event) {
+                if (!event.target.matches('.profile-btn')) {
+                    const dropdowns = document.getElementsByClassName("dropdown-content");
+                    Array.from(dropdowns).forEach(dropdown => dropdown.style.display = "none");
+                }
+            };
+    
+            // Assign sidebar toggle to hamburger icon
+            document.querySelector('.hamburger-icon').addEventListener('click', toggleSidebar);
+    
+            console.log("Page loaded, openModal should not be called.");
+
+            // Expose necessary functions to global scope for inline HTML usage
+            window.navigateTo = navigateTo;
+            window.closeModal = closeModal;
+            window.toggleDropdown = toggleDropdown;
+        });
+    </script>    
+</body>
+</html>

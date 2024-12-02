@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            background-color: #ffffff;
+            display: flex;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .sidebar {
+            background-color: #CDC1FF;
+            padding: 20px;
+            height: 100vh;
+            position: fixed;
+            width: 250px;
+            transition: transform 0.3s ease;
+            z-index: 1000;
+            overflow-y: auto;
+            left: 0;
+        }
+
+        .sidebar.collapsed {
+            transform: translateX(-250px);
+        }
+
+        .hamburger-icon {
+            font-size: 1.5rem;
+            color: #602e9e;
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            cursor: pointer;
+            z-index: 1100;
+        }
+
+        .sidebar img {
+            width: 120px;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: block;
+        }
+
+        .sidebar .logo-caption {
+            text-align: center;
+            font-weight: bold;
+            color: #602e9e;
+            margin-bottom: 20px;
+        }
+
+        .sidebar button {
+            font-weight: bold;
+            font-size: 15px;
+            width: 100%;
+            background-color: transparent;
+            border: 2px solid #602e9e;
+            padding: 10px;
+            border-radius: 100px;
+            color: #602e9e;
+            text-align: left;
+            margin: 15px 0;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+
+        .sidebar button i {
+            margin-right: 10px;
+            font-size: 20px;
+        }
+
+        .sidebar button:hover,
+        .sidebar button.active {
+            background-color: white;
+            border-color: #602e9e;
+        }
+
+        .content {
+            margin-left: 250px;
+            padding: 20px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: margin-left 0.3s ease;
+        }
+        .content.collapsed {
+            margin-left: 0;
+            width: 100%; /* Full width when sidebar is collapsed */
+        }
+        .content h1 {
+            color: #602e9e;
+            margin-bottom: 15px; /* Reduced spacing */
+            font-size: 1.5rem; /* Adjusted size */
+            text-align: center;
+        }
+        /* Profile Container Styling */
+        .profile-container {
+            width: 100%;
+            max-width: 600px; /* Keeps a consistent width */
+            margin: 0 auto; /* Center alignment */
+            padding: 20px;
+            border: 2px solid #CDC1FF;
+            border-radius: 12px;
+            background-color: #fff;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Profile Picture */
+        .profile-container img {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            border: 3px solid #CDC1FF;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        .profile-container h2 {
+            font-size: 1.2rem; /* Adjusted size */
+            font-weight: bold; /* Keeps it visually distinct */
+            color: #602e9e; /* Matches the theme color */
+            margin-bottom: 15px; /* Adjusted spacing */
+            text-align: center;
+        }
+
+        .profile-container img:hover {
+            transform: scale(1.1); /* Add slight hover effect */
+        }
+
+        /* Form Inside the Profile Container */
+        .profile-container form {
+            margin-top: 20px; /* Space between profile and form */
+        }
+
+        /* Form Groups */
+        .form-group {
+            margin-bottom: 20px; /* Consistent spacing */
+            text-align: left;
+        }
+
+        /* File Upload Styling */
+        .file-input-container {
+            text-align: center; /* Centers the upload button */
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            background-color: #A47AD6; /* Matches theme */
+            color: white;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #C2A1E6; /* Hover effect matches theme */
+            color: #602E9E; /* Text color */
+        }
+
+        /* Input Fields */
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 8px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        /* Button Styling */
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+
+        .button-group button {
+            padding: 8px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+
+        .update-btn {
+            background-color: #6C63FF;
+            color: white;
+        }
+
+        .update-btn:hover {
+            background-color: #5B52CC;
+        }
+
+        .logout-btn {
+            background-color: #FF6666;
+            color: white;
+        }
+
+        .logout-btn:hover {
+            background-color: #E55454;
+        }
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .profile-container {
+                width: 90%;
+            }
+
+            .profile-container img {
+                width: 80px; /* Smaller image for smaller screens */
+                height: 80px;
+            }
+
+            .button-group {
+                flex-direction: column; /* Stack buttons vertically */
+                gap: 10px;
+            }
+        }
+        .file-input-container {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .custom-file-upload {
+            display: inline-block;
+            background-color: #a47ad6; /* Softer purple */
+            color: #fff;
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            text-align: center;
+            border: 1px solid #c2a1e6; /* Light border */
+            transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+        }
+
+        .custom-file-upload:hover {
+            background-color: #c2a1e6; /* Lighter purple on hover */
+            color: #602e9e; /* Darker purple text */
+            border: 1px solid #a47ad6; /* Border matches original background */
+        }
+
+        #profile_picture {
+            display: none;
+        }
+
+        .form-group label {
+            font-size: 14px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            display: block;
+        }
+        /* Profile picture styling */
+        .clickable-profile-picture {
+            width: 130px;
+            height: 130px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .clickable-profile-picture:hover {
+            transform: scale(1.1);
+        }
+
+        /* Modal styling */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 600px;
+            transition: transform 0.3s;
+        }
+
+        .modal-content:hover {
+            transform: scale(1.05);
+        }
+
+        #caption {
+            text-align: center;
+            color: #fff;
+            padding: 10px;
+            font-size: 18px;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="hamburger-icon" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <img src="{{ url_for('serve_image', filename='ccs_logo.png') }}" alt="Logo">
+        <div class="logo-caption">Dean's Office Assistant</div>
+        <button onclick="navigateTo(event, 'announcements')"><i class="fas fa-bullhorn"></i> ANNOUNCEMENT</button>
+        <button onclick="navigateTo(event, 'important_dates')"><i class="fas fa-calendar-alt"></i> IMPORTANT DATES</button>
+        <button onclick="navigateTo(event, 'request_page')"><i class="fas fa-file-alt"></i> REQUEST</button>
+        <button onclick="navigateTo(event, 'queue_number')"><i class="fas fa-print"></i> QUEUE NUMBER</button>
+        <button onclick="navigateTo(event, 'doa')"><i class="fas fa-robot"></i> DOA</button>
+        <button onclick="navigateTo(event, 'about')"><i class="fas fa-info-circle"></i> ABOUT</button>
+        
+        <!-- Profile Section -->
+        <button onclick="navigateTo(event, 'profile')" class="profile-btn active">
+            <i class="fas fa-user"></i> PROFILE
+        </button>
+    </div>
+
+    <div class="content" id="content">
+        <h1>Profile</h1>
+    
+        <!-- Alerts Section -->
+        <div id="alert-container" class="container mt-4"></div>        
+
+        <!-- Profile Picture and Form -->
+        <div class="profile-container">
+            <!-- Display the profile picture -->
+            {% if user.face %}
+                <img src="data:image/jpeg;base64,{{ user.face }}" alt="Profile Picture" id="profileImage" class="clickable-profile-picture">
+            {% else %}
+                <img src="https://via.placeholder.com/130" alt="Profile Picture" id="profileImage" class="clickable-profile-picture">
+            {% endif %}
+    
+            <h2>Personal Information</h2>
+    
+            <!-- Profile Update Form -->
+            <form action="/update_profile" method="POST" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label for="profile_picture">Update Profile Picture:</label>
+                    <div class="file-input-container">
+                        <label for="profile_picture" class="custom-file-upload">
+                            <i class="fas fa-upload"></i> Choose a file
+                        </label>
+                        <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+                    </div>
+                </div>
+    
+                <div class="form-group">
+                    <label for="student_id">Student ID:</label>
+                    <input type="text" id="student_id" name="student_id" value="{{ user.student_id }}" readonly>
+                </div>
+    
+                <div class="form-group">
+                    <label for="name">Full Name:</label>
+                    <input type="text" id="name" name="name" value="{{ user.name }}">
+                </div>
+    
+                <div class="form-group">
+                    <label for="section_year">Course/Year:</label>
+                    <input type="text" id="section_year" name="section_year" value="{{ user.section_year }}">
+                </div>
+    
+                <div class="form-group">
+                    <label for="birthdate">Birthdate:</label>
+                    <input type="date" id="birthdate" name="birthdate" value="{{ user.birthdate }}">
+                </div>
+    
+                <div class="form-group">
+                    <label for="sex">Gender:</label>
+                    <select id="sex" name="sex">
+                        <option value="M" {% if user.sex == 'M' %}selected{% endif %}>Male</option>
+                        <option value="F" {% if user.sex == 'F' %}selected{% endif %}>Female</option>
+                    </select>
+                </div>
+    
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" value="{{ user.email }}">
+                </div>
+    
+                <div class="form-group">
+                    <label for="contact_no">Contact No.:</label>
+                    <input type="text" id="contact_no" name="contact_no" value="{{ user.contact_no }}" maxlength="11" pattern="09[0-9]{9}" required>
+                </div>
+    
+                <div class="button-group">
+                    <button type="submit" class="update-btn">Update</button>
+                    <button type="button" class="logout-btn" onclick="window.location.href='/logout'">Logout</button>
+                </div>
+            </form>
+        </div>
+    
+        <!-- Modal for Enlarged Profile Picture -->
+        <div id="imageModal" class="modal">
+            <span class="close" id="closeModal">&times;</span>
+            <img class="modal-content" id="modalImage" alt="Enlarged Profile Picture">
+            <div id="caption"></div>
+        </div>
+    </div>    
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        document.querySelector("form").addEventListener("submit", function (event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            const formData = new FormData(this);
+
+            fetch(this.action, {
+                method: this.method,
+                body: formData,
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.status === "success") {
+                        showAlert(data.message, "success");
+                    } else {
+                        showAlert(data.message, "danger");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                    showAlert("An unexpected error occurred.", "danger");
+                });
+        });
+
+        function showAlert(message, type = "info") {
+            const alertContainer = document.getElementById('alert-container');
+            const alertElement = document.createElement('div');
+
+            alertElement.className = `alert alert-${type} alert-dismissible fade show`;
+            alertElement.role = 'alert';
+            alertElement.innerHTML = `
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            `;
+
+            alertContainer.appendChild(alertElement);
+
+            // Automatically remove the alert after 3 seconds
+            setTimeout(() => {
+                alertElement.remove();
+            }, 3000);
+        }
+
+    
+        // Preview uploaded profile picture before form submission
+        function previewImage(event) {
+            const output = document.getElementById('profileImage');
+            if (!output) {
+                showAlert('Profile image element not found.', 'danger');
+                return;
+            }
+    
+            if (event.target.files[0]) {
+                output.src = URL.createObjectURL(event.target.files[0]);
+            } else {
+                showAlert('No file selected for preview.', 'warning');
+            }
+        }
+    
+        // Toggle sidebar visibility
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const content = document.getElementById('content');
+            if (sidebar && content) {
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('collapsed');
+            } else {
+                showAlert('Sidebar or content element not found.', 'danger');
+            }
+        }
+    
+        // Navigate to different routes
+        function navigateTo(event, route) {
+            event.preventDefault(); // Prevent default anchor behavior
+    
+            const routes = {
+                'announcements': "{{ url_for('announcements') }}",
+                'important_dates': "{{ url_for('important_dates') }}",
+                'request_page': "{{ url_for('request_page') }}",
+                'queue_number': "{{ url_for('queue_number') }}",
+                'doa': "{{ url_for('doa') }}",
+                'about': "{{ url_for('about') }}",
+                'profile': "{{ url_for('profile') }}"
+            };
+    
+            // Remove the `active` class from all buttons
+            const buttons = document.querySelectorAll('.sidebar button');
+            buttons.forEach(button => button.classList.remove('active'));
+    
+            // Add the `active` class to the currently clicked button
+            event.currentTarget.classList.add('active');
+    
+            // Navigate to the corresponding route if it exists
+            if (routes[route]) {
+                window.location.href = routes[route];
+            } else {
+                showAlert(`Route "${route}" does not exist in the route map.`, 'danger');
+            }
+        }
+    
+        // Modal functionality
+        const modal = document.getElementById('imageModal');
+        const modalImg = document.getElementById('modalImage');
+        const profileImg = document.getElementById('profileImage');
+        const closeModal = document.getElementById('closeModal');
+    
+        if (modal && modalImg && profileImg && closeModal) {
+            // Show modal on profile picture click
+            profileImg.addEventListener('click', () => {
+                modal.style.display = 'block';
+                modalImg.src = profileImg.src;
+            });
+    
+            // Close modal on close button click
+            closeModal.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+    
+            // Close modal on clicking outside the modal content
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        } else {
+            showAlert('Modal elements are not properly defined.', 'warning');
+        }
+    </script>    
+</body>
+</html>
